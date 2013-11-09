@@ -1,26 +1,27 @@
-max_x_col = 0 
-max_y_row = 0
-folder_count = 3
+max_x_col = 0; 
+max_y_row = 0;
+folder_count = 3;
+max_image_x = [];
+max_image_y = [];
 for folder_count = 1:62
 for image_count = 1:55
+        
+    disp([folder_count image_count]);
+    %%%%%%taking input
         s = sprintf('C:/Users/Mgenius/Desktop/English/Hnd/Img/Sample0%02d/img0%02d-0%02d.png',folder_count,folder_count,image_count);
         s;
         Img = imread(s);
         J = rgb2gray(Img);
   
-    %size(C)
-
+    %%%%%code to finde the bounding box
     binary_image = im2bw(J, graythresh(J));
-    %imshow(binary_image);
     image_edge = edge(uint8(binary_image));
 
     se = strel('square',2); 
     image_edge2 = imdilate(image_edge, se); 
-    %imshow(Iedge2); 
-
+    
     Ifill= imfill(image_edge2,'holes'); 
-    imshow(Ifill) 
-
+  
 
 
     [Ilabel, num] = bwlabel(Ifill);
@@ -29,25 +30,26 @@ for image_count = 1:55
     Ibox = imageProps.BoundingBox;
 
     %imshow(J);
-    hold on;
-    rectangle('position', Ibox(:), 'edgecolor' , 'r');
-    disp(Ibox(:));
+    %hold on;
+    %rectangle('position', Ibox(:), 'edgecolor' , 'r');
+    
 
-    if max_x_col < Ibox(1)
-        max_x_col = Ibox(1);
+    %%%%%code to find max of x and max of y
+    if max_x_col < Ibox(3)
+        max_x_col = Ibox(3);
+        max_image_x = [image_count folder_count];
+    
     end
     
-    if max_y_row < Ibox(1)
-        max_y_row = Ibox(1);
+    if max_y_row < Ibox(4)
+        max_y_row = Ibox(4);
+        max_image_y = [image_count folder_count];
+    
     end
     
-    %image_2d_array = zeros(900,1200);
-    %for i=1:900
-    %       for j = 1:1200
-    %           image_2d_array(i,j) = J(1200*(i-1)+j);
-    %       end
-    %end
+    %%%%%code for shifting images to the center
     
+    %{
     cent = [ Ibox(1)+Ibox(3)/2 , Ibox(2) + Ibox(4)/2 ];
     disp(cent);
     
@@ -101,6 +103,14 @@ for image_count = 1:55
         dlmwrite(t,'Centroid:','delimiter','','-append');
         dlmwrite(t,newCentroid, 'delimiter', ',', '-append');
     
-    
+    %}
+
 end
 end
+
+disp(max_x_col);
+disp(max_y_row);
+disp(max_image_x);
+
+disp(max_image_y);
+dlmwrite('C:/Users/Mgenius/Desktop/English/Preprocessing/maxXY.txt',[max_x_col max_y_row max_image_x(1) max_image_x(2) max_image_y(1) max_image_y(2)]);
